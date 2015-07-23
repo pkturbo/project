@@ -83,6 +83,7 @@ img {
 <pre class="r"><code>library(randomForest)</code></pre>
 <pre><code>## randomForest 4.6-10
 ## Type rfNews() to see new features/changes/bug fixes.</code></pre>
+<pre class="r"><code>set.seed(6666)</code></pre>
 </div>
 <div id="explore-and-clean-the-data-set" class="section level2">
 <h2>Explore and clean the data set</h2>
@@ -97,14 +98,14 @@ train.Data$classe &lt;- as.factor(train.Data$classe)</code></pre>
 </div>
 <div id="classification-model-choice" class="section level2">
 <h2>Classification model choice</h2>
-<p>I have chosen to implement a <strong>Random Forest</strong> classification model. In random forests, there is <strong>no need for cross-validation or a separate test set</strong> to get an unbiased estimate of the test set error because of its use of bootstrap sampling for every tree - it is estimated internally, during the run. This ensures that every tree in the forest is built on about 63% of the available data, leaving the remaining approximately 37% for testing [the OOB (out-of-bag) data]. The out-of-bag error gives an accurate estimate of the out of sample error.</p>
-<p>So we train the random forest model, and predict the output for the entire training data set.</p>
-<pre class="r"><code>modFit &lt;- randomForest(classe ~ ., data=train.Data2, method=&quot;class&quot;)
+<p>I have chosen to implement a <strong>Random Forest</strong> classification model. In random forests, there is <strong>no need for cross-validation or a separate test set</strong> to get an unbiased estimate of the error because of its use of bootstrap sampling for every tree - the accuracy is estimated internally, during the run. This ensures that every tree in the forest is built on about 63% of the available data, leaving the remaining approximately 37% for testing [the OOB (out-of-bag) data]. The out-of-bag error gives an accurate estimate of the model out of sample error.</p>
+<p>So we train the random forest model with the entire training data set.</p>
+<pre class="r"><code>modFit &lt;- randomForest(classe ~ ., data=train.Data2, method=&quot;class&quot;, OBB=TRUE)
 pred &lt;- predict(modFit, train.Data2, type=&quot;class&quot;)</code></pre>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
-<p>Now look at the <strong>confusion matrix</strong> to see how well the model predicts the true output.</p>
+<p>Now look at the <strong>confusion matrix</strong> to see how well the model predicts the true output (‘classe’).</p>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
@@ -136,7 +137,24 @@ pred &lt;- predict(modFit, train.Data2, type=&quot;class&quot;)</code></pre>
 ## Detection Rate         0.2847   0.1935   0.1744   0.1638   0.1836
 ## Detection Prevalence   0.2847   0.1935   0.1744   0.1638   0.1836
 ## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000</code></pre>
-<p>The accuracy of this model is computed to be 100%. It is clear from the confusion matrix that <strong><em>the model correctly predicted every one of the test cases</em></strong>. This is due to the thorough cleaning that we performed on the data, and the strength of the random forest method.</p>
+<p>The accuracy of this model on the training data is 100%. It is clear from the confusion matrix that <strong><em>the random forest model correctly predicted every one of the training cases</em></strong>. This is due both to the thorough cleaning that we performed on the data, and the strength of the random forest method. For an estimate of the out-of-sample error, we can use OOB error.</p>
+<pre><code>## 
+## Call:
+##  randomForest(formula = classe ~ ., data = train.Data2, method = &quot;class&quot;,      OBB = TRUE) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 7
+## 
+##         OOB estimate of  error rate: 0.17%
+## Confusion matrix:
+##      A    B    C    D    E  class.error
+## A 5470    0    0    0    1 0.0001827819
+## B    4 3711    3    0    0 0.0018827327
+## C    0    7 3344    1    0 0.0023866348
+## D    0    0   12 3134    1 0.0041309183
+## E    0    0    0    3 3525 0.0008503401</code></pre>
+<p>Since the OOB error is 0.13%, we can estimate that <strong>the out of sample accuracy is (1 - 0.13%) = 99.87%.</strong></p>
+<p>.</p>
 </div>
 
 
